@@ -25,11 +25,11 @@ func init() {
 
 func main()  {
 	port := os.Getenv("PORT")
-	userCtrl := controller.NewUserCtrl("localhost", 4444)
+	userCtrl := controller.NewUserCtrl("localhost", 27017)
 	route := routes.UserRoute{UserCtrl: userCtrl}
 	// var TokenMaker,_ = NewPasetoMaker("tfgrfdertygtrfdewsdftgyhujikolpy") // secrete must be 32 bit char
 	
-
+//comitt
 	r := mux.NewRouter()
 	
     r.HandleFunc("/api/v1/auth/login",route.Login ).Methods("POST")
