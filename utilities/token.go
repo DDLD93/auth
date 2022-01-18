@@ -16,7 +16,7 @@ type PasetoMaker struct {
 }
 type Payload struct {
 	Username  string    `json:"username"`
-	AccoutType string
+	AccoutType string   `json:"accountType"`
 	IssuedAt  time.Time `json:"issued_at"`
 	ExpiredAt time.Time `json:"expired_at"`
 }

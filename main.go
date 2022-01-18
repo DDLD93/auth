@@ -24,7 +24,7 @@ func init() {
 
 func main()  {
 	port := os.Getenv("PORT")
-	userCtrl := controller.NewUserCtrl("localhost", 1515)
+	userCtrl := controller.NewUserCtrl("localhost", 27017)
 	route := routes.UserRoute{UserCtrl: userCtrl}
 
 	r := mux.NewRouter()

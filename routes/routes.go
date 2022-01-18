@@ -2,7 +2,6 @@ package routes
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"strings"
 	"time"
@@ -23,7 +22,6 @@ type CustomResponse struct {
 
 
 func (ur *UserRoute) CreateUser(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("routes")
 	w.Header().Add("Content-Type", "application/json")
 	user := model.User{}
 	err := json.NewDecoder(r.Body).Decode(&user)
@@ -31,26 +29,30 @@ func (ur *UserRoute) CreateUser(w http.ResponseWriter, r *http.Request) {
 		resp := CustomResponse{Message: err.Error(), Description: "Error Decoding request body"}
 		w.WriteHeader(http.StatusInternalServerError)
 		json.NewEncoder(w).Encode(resp)
+		return
 	}
 	validatedUserModel,err:= utilities.UserModelValidate(&user)
 	if err != nil {
 		resp := CustomResponse{Message: err.Error(), Description: "invalid form input"}
 		w.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(w).Encode(resp)
+		return
 	}
 	// hashing password using Bcrypt
-	passwordHash, err2 := utilities.HashPassword(validatedUserModel.Password)
-	if err2 != nil {
+	passwordHash, err := utilities.HashPassword(validatedUserModel.Password)
+	if err != nil {
 		resp := CustomResponse{Message: err.Error(), Description: "internal server error"}
 		w.WriteHeader(http.StatusInternalServerError)
 		json.NewEncoder(w).Encode(resp)
+		return
 	}
 	validatedUserModel.Password = passwordHash
-	resp,err3 := ur.UserCtrl.CreateUser(validatedUserModel)
-	if err3 != nil {
-		resp := CustomResponse{Message: err.Error(), Description: "internal server error"}
+	resp,err := ur.UserCtrl.CreateUser(validatedUserModel)
+	if err != nil {
+		resp := CustomResponse{Message: err.Error(), Description: "error adding user to database"}
 		w.WriteHeader(http.StatusInternalServerError)
 		json.NewEncoder(w).Encode(resp)
+		return
 	}
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(resp)
