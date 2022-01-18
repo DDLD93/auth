@@ -32,8 +32,8 @@ func main()  {
 
 	r := mux.NewRouter()
 	
-    r.HandleFunc("/login",route.Login ).Methods("POST")
-    r.HandleFunc("/signup",route.CreateUser ).Methods("POST")
+    r.HandleFunc("/ap1/v1/auth/login",route.Login ).Methods("POST")
+    r.HandleFunc("/ap1/v1/auth/signup",route.CreateUser ).Methods("POST")
 	r.HandleFunc("/user", route.GetUser).Methods("GET") 
 	
 	r.Use(mux.CORSMethodMiddleware(r))

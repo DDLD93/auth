@@ -11,6 +11,6 @@ type User struct{
 	Email string        	`json:"email" bson:"email"`	
 	Password string        	`json:"password" bson:"password"`
 	Phone string        	`json:"phone" bson:"phone"`
-	Role string        		`json:"role" bson:"role"`
+	Role string        		`json:"role" bson:"role"` //client
 	CreatedAt time.Time		`json:"createAt" bson:"CreatAt"`
 }
