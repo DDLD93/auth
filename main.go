@@ -25,22 +25,19 @@ func init() {
 
 func main()  {
 	port := os.Getenv("PORT")
-	userCtrl := controller.NewUserCtrl("localhost", 27017)
+	userCtrl := controller.NewUserCtrl("localhost", 4444)
 	route := routes.UserRoute{UserCtrl: userCtrl}
 	// var TokenMaker,_ = NewPasetoMaker("tfgrfdertygtrfdewsdftgyhujikolpy") // secrete must be 32 bit char
 	
 
 	r := mux.NewRouter()
 	
-    r.HandleFunc("/ap1/v1/auth/login",route.Login ).Methods("POST")
-    r.HandleFunc("/ap1/v1/auth/signup",route.CreateUser ).Methods("POST")
-	r.HandleFunc("/user", route.GetUser).Methods("GET") 
-	
+    r.HandleFunc("/api/v1/auth/login",route.Login ).Methods("POST")
+    r.HandleFunc("/api/v1/auth/signup",route.CreateUser ).Methods("POST")
+	//r.HandleFunc("/user", route.GetUser).Methods("GET") 
+	r.PathPrefix("/").Handler(http.FileServer(http.Dir("./www/")))
 	r.Use(mux.CORSMethodMiddleware(r))
 
-
-
-    http.Handle("/", r)
 
 	fmt.Printf("Server listening on port %v", port)
 	if err := http.ListenAndServe(":"+port, r); err != nil {
