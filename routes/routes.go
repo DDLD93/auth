@@ -81,7 +81,6 @@ func (ur *UserRoute) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	//comparing password 
-	//gggggg
 	isValid:= utilities.CheckPasswordHash(user.Password ,regUser.Password)
 	if !isValid {
 		resp := CustomResponse{Message: "password did not match", Description: "wrong password input"}
@@ -97,8 +96,9 @@ func (ur *UserRoute) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.WriteHeader(http.StatusOK)
+	// json.NewEncoder(w).Encode(token)
+	json.Marshal(token)
 	json.NewEncoder(w).Encode(token)
-	json.NewEncoder(w).Encode(regUser)
 }
 
 
