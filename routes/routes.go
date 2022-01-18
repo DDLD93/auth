@@ -97,7 +97,7 @@ func (ur *UserRoute) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(map[string]string{"token":token})
+	json.NewEncoder(w).Encode(token)
 	json.NewEncoder(w).Encode(regUser)
 }
 
