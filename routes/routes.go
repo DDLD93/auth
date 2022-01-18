@@ -2,7 +2,6 @@ package routes
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"strings"
 	"time"
@@ -23,7 +22,7 @@ type CustomResponse struct {
 
 
 func (ur *UserRoute) CreateUser(w http.ResponseWriter, r *http.Request) {
-	w.Header().Add("Content-Type", "application/json")
+	w.Header().Set("Content-Type", "application/json")
 	
 	user := model.User{}
 	err := json.NewDecoder(r.Body).Decode(&user)
@@ -62,7 +61,7 @@ func (ur *UserRoute) CreateUser(w http.ResponseWriter, r *http.Request) {
 
 
 func (ur *UserRoute) Login(w http.ResponseWriter, r *http.Request) {
-	w.Header().Add("Content-Type", "application/json")
+	
 	user := model.User{}
 	err := json.NewDecoder(r.Body).Decode(&user)
 	
@@ -98,9 +97,10 @@ func (ur *UserRoute) Login(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	// json.NewEncoder(w).Encode(token)
 	
-	res,err := json.Marshal(token)
-	fmt.Println(res)
-	json.NewEncoder(w).Encode(res)
+
+	//fmt.Println(token)
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(token)
 }
 
 
