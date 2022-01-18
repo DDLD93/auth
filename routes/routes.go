@@ -65,7 +65,7 @@ func (ur *UserRoute) Login(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add("Content-Type", "application/json")
 	user := model.User{}
 	err := json.NewDecoder(r.Body).Decode(&user)
-	fmt.Println(user)
+	
 	if err != nil {
 		resp := CustomResponse{Message: err.Error(), Description: "Error Decoding request body"}
 		w.WriteHeader(http.StatusInternalServerError)
@@ -73,7 +73,7 @@ func (ur *UserRoute) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	regUser, err :=	ur.UserCtrl.GetUser(user.Email)
-	fmt.Println(regUser)
+	
 	if err != nil {
 		resp := CustomResponse{Message: err.Error(), Description: "A user with that email dont exist"}
 		w.WriteHeader(http.StatusBadRequest)
@@ -97,8 +97,10 @@ func (ur *UserRoute) Login(w http.ResponseWriter, r *http.Request) {
 	}
 	w.WriteHeader(http.StatusOK)
 	// json.NewEncoder(w).Encode(token)
-	json.Marshal(token)
-	json.NewEncoder(w).Encode(token)
+	
+	res,err := json.Marshal(token)
+	fmt.Println(res)
+	json.NewEncoder(w).Encode(res)
 }
 
 
