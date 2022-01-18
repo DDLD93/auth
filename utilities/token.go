@@ -3,11 +3,22 @@ package utilities
 import (
 	"errors"
 	"fmt"
+	"log"
 	"time"
 
 	"github.com/aead/chacha20poly1305"
+	"github.com/joho/godotenv"
 	"github.com/o1egl/paseto"
 )
+
+func init() {
+
+	err := godotenv.Load(".env")
+
+	if err != nil {
+		log.Fatal("Error loading .env file")
+}
+}
 
 type PasetoMaker struct {
 	paseto       *paseto.V2
@@ -23,6 +34,8 @@ type Maker interface {
     CreateToken(username string, accountType string, duration time.Duration) (string, error)
     VerifyToken(token string) (*Payload, error)
 }
+var TokenMaker,_ = NewPasetoMaker("tfgrfdertygtrfdewsdftgyhujikolpy") // secrete must be 32 bit char
+
 var  (
 	ErrExpiredToken = errors.New("token is expired")
 	ErrInvalidToken = errors.New("token is invalid"))
@@ -77,4 +90,5 @@ func (maker *PasetoMaker) VerifyToken(token string) (*Payload, error) {
 
     return payload, nil
 }
-var TokenMaker,_ = NewPasetoMaker("tfgrfdertygtrfdewsdftgyhujikolpy") // secrete must be 32 bit char
+
+  

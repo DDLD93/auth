@@ -8,6 +8,7 @@ import (
 
 	"github.com/ddld93/auth/controller"
 	"github.com/ddld93/auth/routes"
+	//utilities "github.com/ddld93/auth/utilities"
 	"github.com/gorilla/mux"
 	"github.com/joho/godotenv"
 )
@@ -26,6 +27,8 @@ func main()  {
 	port := os.Getenv("PORT")
 	userCtrl := controller.NewUserCtrl("localhost", 27017)
 	route := routes.UserRoute{UserCtrl: userCtrl}
+	// var TokenMaker,_ = NewPasetoMaker("tfgrfdertygtrfdewsdftgyhujikolpy") // secrete must be 32 bit char
+	
 
 	r := mux.NewRouter()
 	
