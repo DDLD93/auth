@@ -103,7 +103,6 @@ func (ur *UserRoute) Login(w http.ResponseWriter, r *http.Request) {
 	
 
 	//fmt.Println(token)
-	w.Header().Set("Content-Type", "application/json")
 	response := UserResponse{Status: http.StatusCreated, Message: "success", Data: map[string]interface{}{"data": token}}
 	json.NewEncoder(w).Encode(response)
 }
