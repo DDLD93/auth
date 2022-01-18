@@ -61,6 +61,7 @@ func (ur *UserRoute) CreateUser(w http.ResponseWriter, r *http.Request) {
 
 func (ur *UserRoute) Login(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add("Content-Type", "application/json")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	user := model.User{}
 	err := json.NewDecoder(r.Body).Decode(&user)
 	if err != nil {
@@ -70,6 +71,7 @@ func (ur *UserRoute) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	regUser, err :=	ur.UserCtrl.GetUser(user.Email)
+	regUser.Password = ""
 	if err != nil {
 		resp := CustomResponse{Message: err.Error(), Description: "A user with that email dont exist"}
 		w.WriteHeader(http.StatusBadRequest)
@@ -93,6 +95,7 @@ func (ur *UserRoute) Login(w http.ResponseWriter, r *http.Request) {
 	}
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(map[string]string{"token":token})
+	json.NewEncoder(w).Encode(regUser)
 }
 
 
