@@ -18,7 +18,11 @@ type CustomResponse struct {
 	Message     string `json:"message"`
 	Description string `json:"description"`
 }
-
+type UserResponse struct {
+    Status  int                    `json:"status"`
+    Message string                 `json:"message"`
+    Data    map[string]interface{} `json:"data"`
+}
 
 
 func (ur *UserRoute) CreateUser(w http.ResponseWriter, r *http.Request) {
@@ -100,9 +104,9 @@ func (ur *UserRoute) Login(w http.ResponseWriter, r *http.Request) {
 
 	//fmt.Println(token)
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(token)
+	response := UserResponse{Status: http.StatusCreated, Message: "success", Data: map[string]interface{}{"data": token}}
+	json.NewEncoder(w).Encode(response)
 }
-
 
 
 
