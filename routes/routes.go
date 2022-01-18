@@ -60,7 +60,6 @@ func (ur *UserRoute) CreateUser(w http.ResponseWriter, r *http.Request) {
 
 
 func (ur *UserRoute) Login(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Add("Content-Type", "application/json")
 	user := model.User{}
 	err := json.NewDecoder(r.Body).Decode(&user)
@@ -68,12 +67,14 @@ func (ur *UserRoute) Login(w http.ResponseWriter, r *http.Request) {
 		resp := CustomResponse{Message: err.Error(), Description: "Error Decoding request body"}
 		w.WriteHeader(http.StatusInternalServerError)
 		json.NewEncoder(w).Encode(resp)
+		return
 	}
 	regUser, err :=	ur.UserCtrl.GetUser(user.Email)
 	if err != nil {
 		resp := CustomResponse{Message: err.Error(), Description: "A user with that email dont exist"}
 		w.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(w).Encode(resp)
+		return
 	}
 	//comparing password 
 	isValid:= utilities.CheckPasswordHash(user.Password ,regUser.Password)
@@ -81,12 +82,14 @@ func (ur *UserRoute) Login(w http.ResponseWriter, r *http.Request) {
 		resp := CustomResponse{Message: "password did not match", Description: "wrong password input"}
 		w.WriteHeader(http.StatusUnauthorized)
 		json.NewEncoder(w).Encode(resp)
+		return
 	}
 	token,err:=  utilities.TokenMaker.CreateToken(regUser.Email,regUser.Role,time.Hour)
 	if err != nil {
 		resp := CustomResponse{Message: err.Error(), Description: "An error occured generating token"}
 		w.WriteHeader(http.StatusInternalServerError)
 		json.NewEncoder(w).Encode(resp)
+		return
 	}
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(map[string]string{"token":token})
@@ -96,12 +99,23 @@ func (ur *UserRoute) Login(w http.ResponseWriter, r *http.Request) {
 
 
 func (ur *UserRoute) GetUser(w http.ResponseWriter, r *http.Request) {
+	w.Header().Add("Content-Type", "application/json")
 	reqToken := r.Header.Get("Authorization")
+	// checking if request carries a valid token
+	if reqToken == "" {
+		resp := CustomResponse{
+			Message: "Token not Found",
+			Description: "Bearer token not included in request",}
+			json.NewEncoder(w).Encode(resp)
+		return
+	}
 		splitToken := strings.Split(reqToken, "Bearer ")
-		reqToken = splitToken[1]
-		payload,err := utilities.TokenMaker.VerifyToken(reqToken)
+		token := splitToken[1]
+		 payload,err := utilities.TokenMaker.VerifyToken(token)
 		if err != nil{
 			w.WriteHeader(http.StatusUnauthorized)
+			json.NewEncoder(w).Encode(err)
+			return
 		}
 		regUser, err :=	ur.UserCtrl.GetUser(payload.Username)
 		if err != nil{

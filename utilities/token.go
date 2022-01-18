@@ -3,7 +3,6 @@ package utilities
 import (
 	"errors"
 	"fmt"
-	"os"
 	"time"
 
 	"github.com/aead/chacha20poly1305"
@@ -78,4 +77,4 @@ func (maker *PasetoMaker) VerifyToken(token string) (*Payload, error) {
 
     return payload, nil
 }
-var TokenMaker,_ = NewPasetoMaker(os.Getenv("TOKEN_SECRET_KEY")) // secrete must be 32 bit char
+var TokenMaker,_ = NewPasetoMaker("tfgrfdertygtrfdewsdftgyhujikolpy") // secrete must be 32 bit char

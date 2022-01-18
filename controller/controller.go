@@ -55,6 +55,5 @@ func (u *DB_Connect) GetUser(email string) (*model.User, error) {
 	if err != nil {
 		return &user, errors.New("error getting user by email ")
 	}
-	fmt.Println("Sigle User found !")
 	return &user, nil
 }
