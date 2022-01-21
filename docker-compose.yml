@@ -3,9 +3,7 @@ services:
   db:      
     image: mongo      
     ports:         
-      - 27017:27017      
-    volumes:         
-     - "mongodata:/data/db"   
+      - 27017:27017        
   web:      
     image: auth:v4   
     ports: 
