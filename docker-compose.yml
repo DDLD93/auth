@@ -3,13 +3,13 @@ services:
   db:      
     image: mongo      
     ports:         
-      - "27017:27017"      
+      - 27017:27017      
     volumes:         
      - "mongodata:/data/db"   
   web:      
     image: auth:v4   
     ports: 
-      - "5000:5000 "        
+      - 5000:5000        
     depends_on:           
       - db
   
