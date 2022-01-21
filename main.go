@@ -11,9 +11,6 @@ import (
 	"github.com/gorilla/mux"
 )
 
-type MiddlewareFunc func(http.Handler) http.Handler
-
-
 
 func main() {
 	port := "5000"

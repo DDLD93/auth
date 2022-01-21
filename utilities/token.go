@@ -3,22 +3,14 @@ package utilities
 import (
 	"errors"
 	"fmt"
-	"log"
+
 	"time"
 
 	"github.com/aead/chacha20poly1305"
-	"github.com/joho/godotenv"
+	
 	"github.com/o1egl/paseto"
 )
 
-func init() {
-
-	err := godotenv.Load(".env")
-
-	if err != nil {
-		log.Fatal("Error loading .env file")
-}
-}
 
 type PasetoMaker struct {
 	paseto       *paseto.V2
