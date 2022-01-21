@@ -10,19 +10,11 @@ import (
 
 	//utilities "github.com/ddld93/auth/utilities"
 	"github.com/gorilla/mux"
-	"github.com/joho/godotenv"
 )
 
 type MiddlewareFunc func(http.Handler) http.Handler
 
-func init() {
 
-	err := godotenv.Load(".env")
-
-	if err != nil {
-		log.Fatal("Error loading .env file")
-	}
-}
 
 func main() {
 	port := "5000"
