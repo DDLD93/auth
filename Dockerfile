@@ -1,10 +1,6 @@
-FROM golang:alpine AS build-env
-RUN apk --no-cache add build-base git bzr mercurial gcc
-ADD . /src
-RUN cd /src && go build -o authServer
-
-# final stage
-FROM alpine
-WORKDIR /app
-COPY --from=build-env /src/authServer /app/
-ENTRYPOINT ./authServer
+FROM alpine:latest  
+RUN apk --no-cache add ca-certificates
+WORKDIR /root/
+COPY authServer ./
+EXPOSE 5000
+CMD ["./authServer"] 	//fmt.Println(token)

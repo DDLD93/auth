@@ -28,11 +28,9 @@ func main() {
 	port := "5000"
 	userCtrl := controller.NewUserCtrl("mongo", 27017)
 	route := routes.UserRoute{UserCtrl: userCtrl}
-	// var TokenMaker,_ = NewPasetoMaker("tfgrfdertygtrfdewsdftgyhujikolpy") // secrete must be 32 bit char
-
-	//comitt
 	r := mux.NewRouter()
 
+	// router handlers
 	r.HandleFunc("/api/v1/auth/login", route.Login).Methods("POST")
 	r.HandleFunc("/api/v1/auth/signup", route.CreateUser).Methods("POST")
 	//r.HandleFunc("/user", route.GetUser).Methods("GET")

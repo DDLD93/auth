@@ -99,7 +99,6 @@ func (ur *UserRoute) Login(w http.ResponseWriter, r *http.Request) {
 	regUser.Password = ""
 	regUser.Role = ""
 	w.WriteHeader(http.StatusOK)
-	//fmt.Println(token)
 	response := UserResponse{Status: http.StatusCreated, Token: token, User: *regUser}
 	json.NewEncoder(w).Encode(response)
 }
