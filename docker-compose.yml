@@ -1,7 +1,7 @@
 version: '3'
 services:   
-  db:      
-    image: mongo      
+  mongo:      
+    image: mongo:latest      
     ports:         
       - 27017:27017        
   web:      
@@ -9,7 +9,7 @@ services:
     ports: 
       - 5000:5000        
     depends_on:           
-      - db
+      - mongo
   
 
  
