@@ -23,9 +23,13 @@ type UserResponse struct {
 	Token  string     `json:"token"`
 	User   model.User `json:"user"`
 }
+func enableCors(w *http.ResponseWriter) {
+	(*w).Header().Set("Access-Control-Allow-Origin", "*")
+	(*w).Header().Set("Access-Control-Allow-Headers", "*")
+	}
 
 func (ur *UserRoute) CreateUser(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
+		//enableCors(&w)
 
 	user := model.User{}
 	err := json.NewDecoder(r.Body).Decode(&user)
@@ -59,11 +63,12 @@ func (ur *UserRoute) CreateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.WriteHeader(http.StatusOK)
+	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(resp)
 }
 
 func (ur *UserRoute) Login(w http.ResponseWriter, r *http.Request) {
-	w.Header().Add("Content-Type", "application/json")
+	//enableCors(&w)
 	user := model.User{}
 	err := json.NewDecoder(r.Body).Decode(&user)
 
@@ -98,8 +103,13 @@ func (ur *UserRoute) Login(w http.ResponseWriter, r *http.Request) {
 	}
 	regUser.Password = ""
 	regUser.Role = ""
-	w.WriteHeader(http.StatusOK)
 	response := UserResponse{Status: http.StatusCreated, Token: token, User: *regUser}
+	//b, err := json.Marshal(response)
+	// if err != nil{
+	// 	w.WriteHeader(http.StatusInternalServerError)	
+	// 	return
+	// }
+	w.Header().Add("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(response)
 }
 
