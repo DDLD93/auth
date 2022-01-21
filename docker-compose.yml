@@ -4,6 +4,12 @@ services:
     image: mongo:latest      
     ports:         
       - 27017:27017        
+  web:      
+    image: auth:v4   
+    ports: 
+      - 5000:5000        
+    depends_on:           
+      - mongo
   
 
  
