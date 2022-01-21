@@ -8,7 +8,6 @@ import (
 	"github.com/ddld93/auth/controller"
 	"github.com/ddld93/auth/routes"
 
-	//utilities "github.com/ddld93/auth/utilities"
 	"github.com/gorilla/mux"
 )
 
