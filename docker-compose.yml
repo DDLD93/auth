@@ -15,7 +15,6 @@ services:
     volumes:
       - mongodb:/data/db
     network_mode: bridge  
-networks:
   
 
  
