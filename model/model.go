@@ -11,6 +11,12 @@ type User struct{
 	Email string        	`json:"email" bson:"email"`	
 	Password string        	`json:"password" bson:"password"`
 	Phone string        	`json:"phone" bson:"phone"`
+	IsPayment bool 			`json:"isPayment" bson:"isPayment"`
+	PaymentInfo	PaymentInfo	`json:"paymentInfo" bson:"paymentInfo"`
 	Role string        		`json:"role" bson:"role"` //client
 	CreatedAt time.Time		`json:"createAt" bson:"CreatAt"`
+}
+type PaymentInfo struct{
+	Channel string `json:"channel" bson:"channel"`
+	Refrence string `json:"refrence" bson:"refrence"`
 }

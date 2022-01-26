@@ -16,7 +16,7 @@ type DB_Connect struct {
 	Session *mgo.Session
 }
 var (
-	database = "testdb"
+	database = "testdb2"
 	collection= "student"
 )
 
@@ -56,4 +56,23 @@ func (u *DB_Connect) GetUser(email string) (*model.User, error) {
 		return &user, errors.New("error getting user by email ")
 	}
 	return &user, nil
+}
+func (u *DB_Connect) UpdatePayment(email string) error{
+err := u.Session.DB(database).C(collection).Update(bson.M{"email": email},
+bson.D{
+	{"$set", bson.D{{"isPayment", true}}},
+},)
+if err != nil {
+	return err
+}
+return nil
+}
+
+func (u *DB_Connect) GetUsers() (*[]model.User, error) {
+	users := []model.User{}
+	err := u.Session.DB(database).C(collection).Find(bson.M{}).All(&users)
+	if err != nil {
+		return &users, errors.New("error getting user by email ")
+	}
+	return &users, nil
 }

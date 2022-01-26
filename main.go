@@ -1,7 +1,10 @@
 package main
 
 import (
+	"fmt"
+	"log"
 	"net/http"
+
 	"github.com/rs/cors"
 
 	"github.com/ddld93/auth/controller"
@@ -12,7 +15,7 @@ import (
 
 func main() {
 	port := "5000"
-	userCtrl := controller.NewUserCtrl("mongo", 27017)
+	userCtrl := controller.NewUserCtrl("localhost", 27017)
 	route := routes.UserRoute{UserCtrl: userCtrl}
 	r := mux.NewRouter()
 
@@ -20,18 +23,16 @@ func main() {
 	// router handlers
 	r.HandleFunc("/api/v1/auth/login", route.Login).Methods("POST")
 	r.HandleFunc("/api/v1/auth/signup", route.CreateUser).Methods("POST")
-	//r.HandleFunc("/user", route.GetUser).Methods("GET")
-	r.PathPrefix("/").Handler(http.FileServer(http.Dir("www")))
-	
+	r.HandleFunc("/user", route.GetUsers).Methods("GET")
 
-	// fmt.Printf("Server listening on port %v", port)
-	// if err := http.ListenAndServe(":"+port, r); err != nil {
-	// 	log.Fatal("Error starting server !! ", err)
-	// }
-	
- 	// cors.Default() setup the middleware with default options being
-    // all origins accepted with simple methods (GET, POST). See
-    // documentation below for more options.
+	r.HandleFunc("/api/v1/verify/{refrence}", route.Verify).Methods("GET")
+	r.PathPrefix("/").Handler(http.FileServer(http.Dir("./www")))
+
+
     handler := cors.Default().Handler(r)
-    http.ListenAndServe(":"+port, handler)
+    
+	fmt.Printf("Server listening on port %v", port)
+	if err := http.ListenAndServe(":"+port, handler); err != nil {
+		log.Fatal("Error starting server !! ", err)
+	}
 }

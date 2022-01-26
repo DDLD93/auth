@@ -2,6 +2,9 @@ package utilities
 
 import (
 	"errors"
+	"log"
+	"net/http"
+
 	"github.com/ddld93/auth/model"
 )
 
@@ -25,4 +28,35 @@ func UserModelValidate(user *model.User)  (*model.User, error){
 
 	user.Role = "client"
 	return user, nil
+}
+func VerifyPayment(ref string) error{
+	apiKey:= "sk_test_91dcbd0fc948c4670f12b9384402e87a56927c27"
+
+	
+	url := "https://api.paystack.co/transaction/verify/:" + ref
+
+
+    // Create a Bearer string by appending string access token
+    var bearer = "Bearer " + apiKey
+
+    // Create a new request using http
+    req, _ := http.NewRequest("GET", url, nil)
+
+    // add authorization header to the req
+    req.Header.Add("Authorization", bearer)
+
+    // Send req using http Client
+    client := &http.Client{}
+    resp, err := client.Do(req)
+    if err != nil {
+        log.Println("Error on response.\n[ERROR] -", err)
+		return err
+    }
+    defer resp.Body.Close()
+	if resp.StatusCode != 200{
+		
+		return errors.New("payment not verified")
+	}
+
+	return nil
 }

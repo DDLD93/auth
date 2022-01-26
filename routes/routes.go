@@ -9,6 +9,7 @@ import (
 	"github.com/ddld93/auth/controller"
 	"github.com/ddld93/auth/model"
 	"github.com/ddld93/auth/utilities"
+	"github.com/gorilla/mux"
 )
 
 type UserRoute struct {
@@ -23,13 +24,9 @@ type UserResponse struct {
 	Token  string     `json:"token"`
 	User   model.User `json:"user"`
 }
-func enableCors(w *http.ResponseWriter) {
-	(*w).Header().Set("Access-Control-Allow-Origin", "*")
-	(*w).Header().Set("Access-Control-Allow-Headers", "*")
-	}
+
 
 func (ur *UserRoute) CreateUser(w http.ResponseWriter, r *http.Request) {
-		//enableCors(&w)
 
 	user := model.User{}
 	err := json.NewDecoder(r.Body).Decode(&user)
@@ -104,16 +101,11 @@ func (ur *UserRoute) Login(w http.ResponseWriter, r *http.Request) {
 	regUser.Password = ""
 	regUser.Role = ""
 	response := UserResponse{Status: http.StatusCreated, Token: token, User: *regUser}
-	//b, err := json.Marshal(response)
-	// if err != nil{
-	// 	w.WriteHeader(http.StatusInternalServerError)	
-	// 	return
-	// }
 	w.Header().Add("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(response)
 }
 
-func (ur *UserRoute) GetUser(w http.ResponseWriter, r *http.Request) {
+func (ur *UserRoute) GetUsers(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add("Content-Type", "application/json")
 	reqToken := r.Header.Get("Authorization")
 	// checking if request carries a valid token
@@ -132,7 +124,14 @@ func (ur *UserRoute) GetUser(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(err)
 		return
 	}
-	regUser, err := ur.UserCtrl.GetUser(payload.Username)
+	// checking to token has admin previllages
+	if payload.AccoutType != "admin"{
+		w.WriteHeader(http.StatusUnauthorized)
+		json.NewEncoder(w).Encode(map[string]string{"message":"not authorize to make such request"})
+	}
+
+
+	regUser, err := ur.UserCtrl.GetUsers()
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 	}
@@ -140,37 +139,39 @@ func (ur *UserRoute) GetUser(w http.ResponseWriter, r *http.Request) {
 
 }
 
-// func (ur *UserRoute) Login(email, password string) (string,error){
-// 	user, err :=	ur.UserCtrl.GetUser(email)
-// 	if err != nil {
-// 		return "", err
-// 	}
-// 	//comparing password
-// 	resp:= utilities.CheckPasswordHash(password ,user.Password)
-// 	if !resp {
-// 		return "", errors.New("invalid password")
-// 	}
-// 	token,err:=  utilities.TokenMaker.CreateToken(user.Email,user.Role,time.Hour)
-// 	if err != nil {
-// 		return "", err
-// 	}
-// 	return token,nil
-// }
+func (ur *UserRoute) Verify(w http.ResponseWriter, r *http.Request) {
+	w.Header().Add("Content-Type", "application/json")
+	reqToken := r.Header.Get("Authorization")
+	// checking if request carries a valid token
+	if reqToken == "" {
+		resp := CustomResponse{
+			Message:     "Token not Found",
+			Description: "Bearer token not included in request"}
+		json.NewEncoder(w).Encode(resp)
+		return
+	}
+	splitToken := strings.Split(reqToken, "Bearer ")
+	token := splitToken[1]
+	payload, err := utilities.TokenMaker.VerifyToken(token)
+	if err != nil {
+		w.WriteHeader(http.StatusUnauthorized)
+		json.NewEncoder(w).Encode(err)
+		return
+	}
+	refNo:= mux.Vars(r)
+	refrence := refNo["refrence"]
+	err2 := utilities.VerifyPayment(refrence)
+	if err2 != nil {
+		w.WriteHeader(http.StatusNotAcceptable)
+		return
+	}
 
-// func (ur *UserRoute) Register(user *model.User) (string,error){
-// 	validatedUserModel,err:= utilities.UserModelValidate(user)
-// 	if err != nil {
-// 		return "", err
-// 	}
-// 	// hashing password using Bcrypt
-// 	passwordHash, err2 := utilities.HashPassword(validatedUserModel.Password)
-// 	if err2 != nil {
-// 		return "", errors.New(" error harshing password")
-// 	}
-// 	validatedUserModel.Password = passwordHash
-// 	resp,err3 := ur.UserCtrl.CreateUser(validatedUserModel)
-// 	if err3 != nil {
-// 		return "", err3
-// 	}
-// 	return resp,nil
-// }
+	err1 := ur.UserCtrl.UpdatePayment(payload.Username)
+	if err1 != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+	}
+	
+	json.NewEncoder(w).Encode("done")
+
+}
+
