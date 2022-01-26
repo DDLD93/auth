@@ -160,14 +160,14 @@ func (ur *UserRoute) Verify(w http.ResponseWriter, r *http.Request) {
 	}
 	refNo:= mux.Vars(r)
 	refrence := refNo["refrence"]
-	err2 := utilities.VerifyPayment(refrence)
-	if err2 != nil {
+	err = utilities.VerifyPayment(refrence)
+	if err != nil {
 		w.WriteHeader(http.StatusNotAcceptable)
 		return
 	}
 
-	err1 := ur.UserCtrl.UpdatePayment(payload.Username)
-	if err1 != nil {
+	err = ur.UserCtrl.UpdatePayment(payload.Username)
+	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 	}
 	
