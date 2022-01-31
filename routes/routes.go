@@ -125,9 +125,10 @@ func (ur *UserRoute) GetUsers(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// checking to token has admin previllages
-	if payload.AccoutType != "admin"{
+	if payload.AccoutType != "client"{
 		w.WriteHeader(http.StatusUnauthorized)
 		json.NewEncoder(w).Encode(map[string]string{"message":"not authorize to make such request"})
+		return
 	}
 
 
