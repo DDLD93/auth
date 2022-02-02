@@ -33,7 +33,7 @@ func VerifyPayment(ref string) error{
 	apiKey:= "sk_test_91dcbd0fc948c4670f12b9384402e87a56927c27"
 
 	
-	url := "https://api.paystack.co/transaction/verify/:" + ref
+	url := "https://api.paystack.co/transaction/verify/" + ref
 
 
     // Create a Bearer string by appending string access token

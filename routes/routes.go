@@ -2,6 +2,7 @@ package routes
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strings"
 	"time"
@@ -24,7 +25,6 @@ type UserResponse struct {
 	Token  string     `json:"token"`
 	User   model.User `json:"user"`
 }
-
 
 func (ur *UserRoute) CreateUser(w http.ResponseWriter, r *http.Request) {
 
@@ -65,7 +65,7 @@ func (ur *UserRoute) CreateUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func (ur *UserRoute) Login(w http.ResponseWriter, r *http.Request) {
-	//enableCors(&w)
+	w.Header().Set("Content-Type", "application/json")
 	user := model.User{}
 	err := json.NewDecoder(r.Body).Decode(&user)
 
@@ -125,11 +125,10 @@ func (ur *UserRoute) GetUsers(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// checking to token has admin previllages
-	if payload.AccoutType != "admin"{
+	if payload.AccoutType != "admin" {
 		w.WriteHeader(http.StatusUnauthorized)
-		json.NewEncoder(w).Encode(map[string]string{"message":"not authorize to make such request"})
+		json.NewEncoder(w).Encode(map[string]string{"message": "not authorize to make such request"})
 	}
-
 
 	regUser, err := ur.UserCtrl.GetUsers()
 	if err != nil {
@@ -158,20 +157,25 @@ func (ur *UserRoute) Verify(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(err)
 		return
 	}
-	refNo:= mux.Vars(r)
-	refrence := refNo["refrence"]
-	err = utilities.VerifyPayment(refrence)
+	refNo := mux.Vars(r)
+	reference := refNo["reference"]
+	fmt.Println(reference)
+	err = utilities.VerifyPayment(reference)
 	if err != nil {
 		w.WriteHeader(http.StatusNotAcceptable)
+		fmt.Println(err)
 		return
 	}
 
 	err = ur.UserCtrl.UpdatePayment(payload.Username)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
+		return
 	}
-	
-	json.NewEncoder(w).Encode("done")
+	resp := CustomResponse{
+		Message:     "payment ok",
+		Description: "payment verified succesifully",
+	}
+	json.NewEncoder(w).Encode(resp)
 
 }
-

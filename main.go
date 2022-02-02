@@ -24,8 +24,7 @@ func main() {
 	r.HandleFunc("/api/v1/auth/login", route.Login).Methods("POST")
 	r.HandleFunc("/api/v1/auth/signup", route.CreateUser).Methods("POST")
 	r.HandleFunc("/user", route.GetUsers).Methods("GET")
-
-	r.HandleFunc("/api/v1/verify/{refrence}", route.Verify).Methods("GET")
+	r.HandleFunc("/api/paystack/verify/{reference}", route.Verify).Methods("GET")
 	r.PathPrefix("/").Handler(http.FileServer(http.Dir("./www")))
 
 
