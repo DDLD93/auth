@@ -1,16 +1,22 @@
 version: '3'
 services:   
   mongo:      
-    image: mongo:latest      
+    image: mongo:4.4.12      
     ports:         
       - 27017:27017        
-  web:      
-    image: auth:v6 
+  auth:      
+    image: auth:v2 
     restart: always  
     ports: 
-      - 80:5000        
+      - 5000:5000        
     depends_on:           
       - mongo
-  
+  forms:
+    image: forms:v3
+    restart: always
+    ports:
+      - 3000:3000
+    depends_on:           
+      - mongo
 
  

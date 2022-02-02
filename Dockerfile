@@ -1,4 +1,4 @@
-FROM ubuntu:18.04  
+FROM ubuntu:jammy 
 WORKDIR /root/
 COPY authServer ./
 EXPOSE 5000
