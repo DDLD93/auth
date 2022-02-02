@@ -5,7 +5,8 @@ services:
     ports:         
       - 27017:27017        
   web:      
-    image: auth:v6   
+    image: auth:v6 
+    restart: always  
     ports: 
       - 80:5000        
     depends_on:           

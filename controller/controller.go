@@ -16,8 +16,8 @@ type DB_Connect struct {
 	Session *mgo.Session
 }
 var (
-	database = "testdb2"
-	collection= "student"
+	database = "user"
+	collection= "user_collection"
 )
 
 func NewUserCtrl(host string, port int) *DB_Connect {
