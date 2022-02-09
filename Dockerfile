@@ -4,7 +4,7 @@ ADD . /src
 RUN cd /src && go get && go mod tidy && go build -o authServer
 
 # final stage
-FROM linux:alpine
+FROM alpine
 WORKDIR /app
 COPY --from=build-env /src/authServer /app/
 EXPOSE 5000
