@@ -1,6 +1,5 @@
 # build stage
-FROM golang:alpine AS build-env
-RUN apk --no-cache add build-base git bzr mercurial gcc
+FROM golang AS build-env
 ADD . /src
 RUN go get
 RUN cd /src && go build -o authServer
