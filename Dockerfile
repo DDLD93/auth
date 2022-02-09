@@ -9,4 +9,4 @@ FROM alpine
 WORKDIR /app
 COPY --from=build-env /src/authServer /app/
 EXPOSE 5000
-ENTRYPOINT ./authServer
+CMD ["./authServer"] 
