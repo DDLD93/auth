@@ -6,7 +6,7 @@ RUN go get
 RUN cd /src && go build -o authServer
 
 # final stage
-FROM alpine
+FROM linux:alpine
 WORKDIR /app
 COPY --from=build-env /src/authServer /app/
 EXPOSE 5000
