@@ -1,7 +1,8 @@
 # build stage
 FROM golang AS build-env
+WORKDIR /src
 ADD . /src
-RUN cd /src && go get && go mod tidy && go build -o authServer
+RUN cd /src && go get && go mod tidy && go build -o ./authServer
 
 # final stage
 FROM alpine
