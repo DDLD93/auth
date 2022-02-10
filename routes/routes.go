@@ -20,9 +20,10 @@ type UserRoute struct {
 type CustomResponse struct {
 	Message     string `json:"message"`
 	Description string `json:"description"`
+	Payload model.User  `json:"payload"`
 }
 type UserResponse struct {
-	Status string        `json:"status"`
+	Status string       `json:"status"`
 	Token  string     `json:"token"`
 	User   model.User `json:"user"`
 }
@@ -198,9 +199,18 @@ func (ur *UserRoute) Verify(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
+	user,err := ur.UserCtrl.GetUser(payload.Username)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	user.Password = ""
+	user.Role = ""
+
 	resp := CustomResponse{
 		Message:     "payment ok",
 		Description: "payment verified succesifully",
+		Payload: *user,
 	}
 	json.NewEncoder(w).Encode(resp)
 
