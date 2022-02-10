@@ -25,7 +25,7 @@ func main() {
 	r.HandleFunc("/api/v1/auth/signup", route.CreateUser).Methods("POST")
 	r.HandleFunc("/user", route.GetUsers).Methods("GET")
 	r.HandleFunc("/api/paystack/verify/{reference}", route.Verify).Methods("GET")
-	r.PathPrefix("/").Handler(http.FileServer(http.Dir("./www")))
+	r.PathPrefix("/").Handler(http.FileServer(http.Dir("www")))
 	c := cors.New(cors.Options{
 		AllowedOrigins: []string{"*"},
 		AllowedMethods: []string{"GET", "POST", "DELETE"},
