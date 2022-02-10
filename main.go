@@ -17,7 +17,7 @@ func main() {
 	port := "5000"
 	userCtrl := controller.NewUserCtrl("localhost", 27017)
 	route := routes.UserRoute{UserCtrl: userCtrl}
-	r := mux.NewRouter()
+	r := mux.NewRouter() 
 
 	
 	// router handlers
@@ -26,9 +26,16 @@ func main() {
 	r.HandleFunc("/user", route.GetUsers).Methods("GET")
 	r.HandleFunc("/api/paystack/verify/{reference}", route.Verify).Methods("GET")
 	r.PathPrefix("/").Handler(http.FileServer(http.Dir("./www")))
+	c := cors.New(cors.Options{
+		AllowedOrigins: []string{"*"},
+		AllowedMethods: []string{"GET", "POST", "DELETE"},
+		AllowedHeaders: []string{"*"},
+		AllowCredentials: true,
+		//Debug: true,
+		
+	})
 
-
-    handler := cors.Default().Handler(r)
+    handler := c.Handler(r)
     
 	fmt.Printf("Server listening on port %v", port)
 	if err := http.ListenAndServe(":"+port, handler); err != nil {

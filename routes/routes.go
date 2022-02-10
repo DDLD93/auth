@@ -11,6 +11,7 @@ import (
 	"github.com/ddld93/auth/model"
 	"github.com/ddld93/auth/utilities"
 	"github.com/gorilla/mux"
+	"github.com/gorilla/websocket"
 )
 
 type UserRoute struct {
@@ -21,9 +22,14 @@ type CustomResponse struct {
 	Description string `json:"description"`
 }
 type UserResponse struct {
-	Status int        `json:"status"`
+	Status string        `json:"status"`
 	Token  string     `json:"token"`
 	User   model.User `json:"user"`
+}
+
+var upgrader = websocket.Upgrader{
+    ReadBufferSize:  1024,
+    WriteBufferSize: 1024,
 }
 
 func (ur *UserRoute) CreateUser(w http.ResponseWriter, r *http.Request) {
@@ -52,7 +58,7 @@ func (ur *UserRoute) CreateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	validatedUserModel.Password = passwordHash
-	resp, err := ur.UserCtrl.CreateUser(validatedUserModel)
+	_, err = ur.UserCtrl.CreateUser(validatedUserModel)
 	if err != nil {
 		resp := CustomResponse{Message: err.Error(), Description: "error adding user to database"}
 		w.WriteHeader(http.StatusInternalServerError)
@@ -61,7 +67,11 @@ func (ur *UserRoute) CreateUser(w http.ResponseWriter, r *http.Request) {
 	}
 	w.WriteHeader(http.StatusOK)
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(resp)
+	
+	json.NewEncoder(w).Encode(map[string]string{
+		"status": "Succuess",
+		"message": "new account ceated",
+	})
 }
 
 func (ur *UserRoute) Login(w http.ResponseWriter, r *http.Request) {
@@ -100,10 +110,25 @@ func (ur *UserRoute) Login(w http.ResponseWriter, r *http.Request) {
 	}
 	regUser.Password = ""
 	regUser.Role = ""
-	response := UserResponse{Status: http.StatusCreated, Token: token, User: *regUser}
+	response := UserResponse{Status: "Login Success", Token: token, User: *regUser}
 	w.Header().Add("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(response)
-}
+
+	// initializing web sockets
+// 	upgrader.CheckOrigin = func(r *http.Request) bool { return true }
+
+// 	ws, err := upgrader.Upgrade(w, r, nil)
+//     if err != nil {
+//         log.Println(err)
+//     }
+
+// 	log.Println("Client Connected")
+//     err = ws.WriteMessage(1, []byte("Hi Client!"))
+//     if err != nil {
+//         log.Println(err)
+//     }
+//     defer ws.Close()
+ }
 
 func (ur *UserRoute) GetUsers(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add("Content-Type", "application/json")
@@ -164,9 +189,8 @@ func (ur *UserRoute) Verify(w http.ResponseWriter, r *http.Request) {
 	fmt.Println(reference)
 	err = utilities.VerifyPayment(reference)
 	if err != nil {
-		w.WriteHeader(http.StatusNotAcceptable)
-		fmt.Println(err)
-		return
+		json.NewEncoder(w).Encode("payment verification failed")
+	return
 	}
 
 	err = ur.UserCtrl.UpdatePayment(payload.Username)

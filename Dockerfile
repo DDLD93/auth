@@ -8,4 +8,5 @@ RUN cd /src && go get && go mod tidy && go build -o ./auth
 FROM alpine
 WORKDIR /app
 COPY --from=build-env /src/auth /app/
+RUN cd /app
 ENTRYPOINT app/auth
