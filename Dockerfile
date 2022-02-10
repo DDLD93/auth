@@ -1,6 +1,6 @@
 # build stage
-FROM ubuntu:18.04  
+FROM alpine 
 WORKDIR /app
-COPY authServer ./
+COPY authServer .
 EXPOSE 3000
 CMD ["./authServer"]
