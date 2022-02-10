@@ -9,4 +9,4 @@ FROM alpine
 WORKDIR /app
 COPY --from=build-env /src/auth /app/
 RUN cd /app
-ENTRYPOINT app/auth
+ENTRYPOINT ./auth
