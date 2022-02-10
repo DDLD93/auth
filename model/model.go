@@ -13,10 +13,11 @@ type User struct{
 	Phone string        	`json:"phone" bson:"phone"`
 	IsPayment bool 			`json:"isPayment" bson:"isPayment"`
 	PaymentInfo	PaymentInfo	`json:"paymentInfo" bson:"paymentInfo"`
-	Role string        		`json:"role" bson:"role"` //client
+	Role string        		`json:"role" bson:"role"`
 	CreatedAt time.Time		`json:"createAt" bson:"CreatAt"`
 }
 type PaymentInfo struct{
 	Channel string `json:"channel" bson:"channel"`
 	Refrence string `json:"refrence" bson:"refrence"`
+	PaymentAt time.Time		`json:"paymentAt" bson:"paymentAt"`
 }

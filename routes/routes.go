@@ -3,6 +3,7 @@ package routes
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"strings"
 	"time"
@@ -117,17 +118,17 @@ func (ur *UserRoute) Login(w http.ResponseWriter, r *http.Request) {
 	// initializing web sockets
 // 	upgrader.CheckOrigin = func(r *http.Request) bool { return true }
 
-// 	ws, err := upgrader.Upgrade(w, r, nil)
-//     if err != nil {
-//         log.Println(err)
-//     }
+	ws, err := upgrader.Upgrade(w, r, nil)
+    if err != nil {
+        log.Println(err)
+    }
 
-// 	log.Println("Client Connected")
-//     err = ws.WriteMessage(1, []byte("Hi Client!"))
-//     if err != nil {
-//         log.Println(err)
-//     }
-//     defer ws.Close()
+	log.Println("Client Connected")
+    err = ws.WriteMessage(1, []byte("Hi Client!"))
+    if err != nil {
+        log.Println(err)
+    }
+    defer ws.Close()
  }
 
 func (ur *UserRoute) GetUsers(w http.ResponseWriter, r *http.Request) {
