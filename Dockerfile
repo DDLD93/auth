@@ -1,5 +1,5 @@
 # build stage
-FROM alpine 
+FROM ubuntu 
 WORKDIR /app
 COPY authServer .
 EXPOSE 3000
