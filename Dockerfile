@@ -2,5 +2,5 @@
 FROM ubuntu 
 WORKDIR /app
 COPY authServer .
-EXPOSE 3000
+EXPOSE 5000
 CMD ["./authServer"]
