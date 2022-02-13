@@ -5,14 +5,14 @@ services:
     ports:         
       - 27017:27017        
   auth:      
-    image: auth:v2 
+    image: auth:v3 
     restart: always  
     ports: 
       - 5000:5000        
     depends_on:           
       - mongo
   forms:
-    image: forms:v3
+    image: forms:v4
     restart: always
     ports:
       - 3000:3000
