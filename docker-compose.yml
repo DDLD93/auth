@@ -4,8 +4,8 @@ services:
     image: mongo:4.4.12      
     ports:         
       - 27017:27017        
-  auth:      
-    image: auth:v3 
+  web:      
+    image: auth:v1 
     restart: always  
     ports: 
       - 5000:5000        
@@ -18,5 +18,13 @@ services:
       - 3000:3000
     depends_on:           
       - mongo
+  form:      
+    image: form:v1 
+    restart: always  
+    ports: 
+      - 3000:3000        
+    depends_on:           
+      - mongo
+  
 
  

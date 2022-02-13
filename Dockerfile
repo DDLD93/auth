@@ -1,5 +1,6 @@
-FROM ubuntu:jammy 
-WORKDIR /root/
-COPY authServer ./
+# build stage
+FROM ubuntu 
+WORKDIR /app
+COPY authServer .
 EXPOSE 5000
 CMD ["./authServer"]
