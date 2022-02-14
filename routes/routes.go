@@ -20,7 +20,6 @@ type UserRoute struct {
 type CustomResponse struct {
 	Message     string `json:"message"`
 	Description string `json:"description"`
-	Payload model.User  `json:"payload"`
 }
 type UserResponse struct {
 	Status string       `json:"status"`
@@ -39,31 +38,31 @@ func (ur *UserRoute) CreateUser(w http.ResponseWriter, r *http.Request) {
 	err := json.NewDecoder(r.Body).Decode(&user)
 	if err != nil {
 		resp := CustomResponse{Message: err.Error(), Description: "Error Decoding request body"}
-		w.WriteHeader(http.StatusInternalServerError)
 		json.NewEncoder(w).Encode(resp)
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 	validatedUserModel, err := utilities.UserModelValidate(&user)
 	if err != nil {
-		resp := CustomResponse{Message: err.Error(), Description: "invalid form input"}
-		w.WriteHeader(http.StatusBadRequest)
+		resp := CustomResponse{Message:"invalid input fields" , Description:err.Error()}
 		json.NewEncoder(w).Encode(resp)
+		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 	// hashing password using Bcrypt
 	passwordHash, err := utilities.HashPassword(validatedUserModel.Password)
 	if err != nil {
 		resp := CustomResponse{Message: err.Error(), Description: "internal server error"}
-		w.WriteHeader(http.StatusInternalServerError)
 		json.NewEncoder(w).Encode(resp)
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 	validatedUserModel.Password = passwordHash
 	_, err = ur.UserCtrl.CreateUser(validatedUserModel)
 	if err != nil {
 		resp := CustomResponse{Message: err.Error(), Description: "error adding user to database"}
-		w.WriteHeader(http.StatusInternalServerError)
 		json.NewEncoder(w).Encode(resp)
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 	w.WriteHeader(http.StatusOK)
@@ -82,31 +81,31 @@ func (ur *UserRoute) Login(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 		resp := CustomResponse{Message: err.Error(), Description: "Error Decoding request body"}
-		w.WriteHeader(http.StatusInternalServerError)
 		json.NewEncoder(w).Encode(resp)
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 	regUser, err := ur.UserCtrl.GetUser(user.Email)
 
 	if err != nil {
 		resp := CustomResponse{Message: err.Error(), Description: "A user with that email dont exist"}
-		w.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(w).Encode(resp)
+		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 	//comparing password
 	isValid := utilities.CheckPasswordHash(user.Password, regUser.Password)
 	if !isValid {
 		resp := CustomResponse{Message: "password did not match", Description: "wrong password input"}
-		w.WriteHeader(http.StatusUnauthorized)
 		json.NewEncoder(w).Encode(resp)
+		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
 	token, err := utilities.TokenMaker.CreateToken(regUser.Email, regUser.Role, time.Hour)
 	if err != nil {
 		resp := CustomResponse{Message: err.Error(), Description: "An error occured generating token"}
-		w.WriteHeader(http.StatusInternalServerError)
 		json.NewEncoder(w).Encode(resp)
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 	regUser.Password = ""
@@ -114,21 +113,6 @@ func (ur *UserRoute) Login(w http.ResponseWriter, r *http.Request) {
 	response := UserResponse{Status: "Login Success", Token: token, User: *regUser}
 	w.Header().Add("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(response)
-
-	// initializing web sockets
-// 	upgrader.CheckOrigin = func(r *http.Request) bool { return true }
-
-	// ws, err := upgrader.Upgrade(w, r, nil)
-    // if err != nil {
-    //     log.Println(err)
-    // }
-
-	// log.Println("Client Connected")
-    // err = ws.WriteMessage(1, []byte("Hi Client!"))
-    // if err != nil {
-    //     log.Println(err)
-    // }
-    // defer ws.Close()
  }
 
 func (ur *UserRoute) GetUsers(w http.ResponseWriter, r *http.Request) {
@@ -140,14 +124,15 @@ func (ur *UserRoute) GetUsers(w http.ResponseWriter, r *http.Request) {
 			Message:     "Token not Found",
 			Description: "Bearer token not included in request"}
 		json.NewEncoder(w).Encode(resp)
+		
 		return
 	}
 	splitToken := strings.Split(reqToken, "Bearer ")
 	token := splitToken[1]
 	payload, err := utilities.TokenMaker.VerifyToken(token)
 	if err != nil {
-		w.WriteHeader(http.StatusUnauthorized)
 		json.NewEncoder(w).Encode(err)
+		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
 	// checking to token has admin previllages
@@ -210,7 +195,6 @@ func (ur *UserRoute) Verify(w http.ResponseWriter, r *http.Request) {
 	resp := CustomResponse{
 		Message:     "payment ok",
 		Description: "payment verified succesifully",
-		Payload: *user,
 	}
 	json.NewEncoder(w).Encode(resp)
 

@@ -1,5 +1,5 @@
 # build stage
-FROM ubuntu 
+FROM ubuntu:jammy
 WORKDIR /app
 COPY authServer .
 EXPOSE 5000

@@ -31,7 +31,7 @@ func main() {
 		AllowedMethods: []string{"GET", "POST", "DELETE"},
 		AllowedHeaders: []string{"*"},
 		AllowCredentials: true,
-		Debug: true,
+		Debug: false,
 		
 	})
 
