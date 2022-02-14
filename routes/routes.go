@@ -3,6 +3,7 @@ package routes
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"strings"
 	"time"
@@ -16,6 +17,10 @@ import (
 
 type UserRoute struct {
 	UserCtrl *controller.DB_Connect
+	Session *websocket.Conn
+}
+type SocketConn struct{
+	
 }
 type CustomResponse struct {
 	Message     string `json:"message"`
@@ -27,10 +32,57 @@ type UserResponse struct {
 	Token  string     `json:"token"`
 	User   model.User `json:"user"`
 }
-
+func NewSocket(r *http.Request,w http.ResponseWriter) (UserRoute, error)  {
+	upgrader.CheckOrigin = func(r *http.Request) bool { return true }
+	session, err := upgrader.Upgrade(w, r, nil)
+    if err != nil {
+        return UserRoute{},err
+    }
+	return UserRoute{Session: session}, nil
+}
 var upgrader = websocket.Upgrader{
     ReadBufferSize:  1024,
     WriteBufferSize: 1024,
+}
+
+func reader(conn *websocket.Conn) {
+    for {
+    // read in a message
+        messageType, p, err := conn.ReadMessage()
+        if err != nil {
+            log.Println(err)
+            return
+        }
+    // print out that message for clarity
+        fmt.Println(string(p))
+
+        if err := conn.WriteMessage(messageType, p); err != nil {
+            log.Println(err)
+            return
+        }
+
+    }
+}
+
+
+func (ur *UserRoute) WsEndpoint(w http.ResponseWriter, r *http.Request) {
+    upgrader.CheckOrigin = func(r *http.Request) bool { return true }
+
+    // upgrade this connection to a WebSocket
+    // connection
+    conn, err := NewSocket(r, w)
+    if err != nil {
+        log.Println(err)
+    }
+	err =conn.Session.WriteMessage(1, []byte("Hi Client!"))
+	if err != nil {
+        log.Println(err)
+    }
+    log.Println("Client Connected")
+
+    reader(conn.Session)
+    // listen indefinitely for new messages coming
+    // through on our WebSocket connection
 }
 
 func (ur *UserRoute) CreateUser(w http.ResponseWriter, r *http.Request) {
@@ -102,6 +154,8 @@ func (ur *UserRoute) Login(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(resp)
 		return
 	}
+	//testing socket connection
+
 	token, err := utilities.TokenMaker.CreateToken(regUser.Email, regUser.Role, time.Hour)
 	if err != nil {
 		resp := CustomResponse{Message: err.Error(), Description: "An error occured generating token"}
@@ -112,23 +166,12 @@ func (ur *UserRoute) Login(w http.ResponseWriter, r *http.Request) {
 	regUser.Password = ""
 	regUser.Role = ""
 	response := UserResponse{Status: "Login Success", Token: token, User: *regUser}
+	
 	w.Header().Add("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(response)
 
 	// initializing web sockets
-// 	upgrader.CheckOrigin = func(r *http.Request) bool { return true }
-
-	// ws, err := upgrader.Upgrade(w, r, nil)
-    // if err != nil {
-    //     log.Println(err)
-    // }
-
-	// log.Println("Client Connected")
-    // err = ws.WriteMessage(1, []byte("Hi Client!"))
-    // if err != nil {
-    //     log.Println(err)
-    // }
-    // defer ws.Close()
+	
  }
 
 func (ur *UserRoute) GetUsers(w http.ResponseWriter, r *http.Request) {
@@ -212,6 +255,10 @@ func (ur *UserRoute) Verify(w http.ResponseWriter, r *http.Request) {
 		Description: "payment verified succesifully",
 		Payload: *user,
 	}
+	err =ur.Session.WriteMessage(1, []byte("Hi Client!"))
+	if err != nil {
+        log.Println(err)
+    }
 	json.NewEncoder(w).Encode(resp)
 
 }

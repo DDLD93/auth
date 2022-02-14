@@ -21,6 +21,7 @@ func main() {
 
 	
 	// router handlers
+	r.HandleFunc("/ws", route.WsEndpoint).Methods("GET")
 	r.HandleFunc("/api/v1/auth/login", route.Login).Methods("POST")
 	r.HandleFunc("/api/v1/auth/signup", route.CreateUser).Methods("POST")
 	r.HandleFunc("/user", route.GetUsers).Methods("GET")
@@ -31,7 +32,7 @@ func main() {
 		AllowedMethods: []string{"GET", "POST", "DELETE"},
 		AllowedHeaders: []string{"*"},
 		AllowCredentials: true,
-		Debug: true,
+		Debug: false,
 		
 	})
 
