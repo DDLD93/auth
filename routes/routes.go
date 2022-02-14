@@ -169,8 +169,8 @@ func (ur *UserRoute) Login(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(response)
 
-	// initializing web sockets
 	
+
  }
 
 func (ur *UserRoute) GetUsers(w http.ResponseWriter, r *http.Request) {
