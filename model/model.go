@@ -12,6 +12,7 @@ type User struct{
 	Password string        	`json:"password" bson:"password"`
 	Phone string        	`json:"phone" bson:"phone"`
 	IsPayment bool 			`json:"isPayment" bson:"isPayment"`
+	IsSubmitted bool        `json:"isSubmitted" bson:"isSubmitted"`
 	PaymentInfo	PaymentInfo	`json:"paymentInfo" bson:"paymentInfo"`
 	Role string        		`json:"role" bson:"role"`
 	CreatedAt time.Time		`json:"createAt" bson:"CreatAt"`

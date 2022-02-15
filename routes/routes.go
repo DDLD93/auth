@@ -26,6 +26,12 @@ type CustomResponse struct {
 	Message     string `json:"message"`
 	Description string `json:"description"`
 }
+type PaymentResponse struct {
+	Message     string `json:"message"`
+	Description string `json:"description"`
+	User   model.User `json:"user"`
+}
+
 type UserResponse struct {
 	Status string       `json:"status"`
 	Token  string     `json:"token"`
@@ -85,7 +91,7 @@ func (ur *UserRoute) WsEndpoint(w http.ResponseWriter, r *http.Request) {
 }
 
 func (ur *UserRoute) CreateUser(w http.ResponseWriter, r *http.Request) {
-
+	w.Header().Set("Content-Type", "application/json")
 	user := model.User{}
 	err := json.NewDecoder(r.Body).Decode(&user)
 	if err != nil {
@@ -118,7 +124,7 @@ func (ur *UserRoute) CreateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.WriteHeader(http.StatusOK)
-	w.Header().Set("Content-Type", "application/json")
+	
 	
 	json.NewEncoder(w).Encode(map[string]string{
 		"status": "Succuess",
@@ -134,7 +140,6 @@ func (ur *UserRoute) Login(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		resp := CustomResponse{Message: err.Error(), Description: "Error Decoding request body"}
 		json.NewEncoder(w).Encode(resp)
-		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 	regUser, err := ur.UserCtrl.GetUser(user.Email)
@@ -142,7 +147,6 @@ func (ur *UserRoute) Login(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		resp := CustomResponse{Message: err.Error(), Description: "A user with that email dont exist"}
 		json.NewEncoder(w).Encode(resp)
-		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 	//comparing password
@@ -150,7 +154,6 @@ func (ur *UserRoute) Login(w http.ResponseWriter, r *http.Request) {
 	if !isValid {
 		resp := CustomResponse{Message: "password did not match", Description: "wrong password input"}
 		json.NewEncoder(w).Encode(resp)
-		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
 	//testing socket connection
@@ -159,7 +162,6 @@ func (ur *UserRoute) Login(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		resp := CustomResponse{Message: err.Error(), Description: "An error occured generating token"}
 		json.NewEncoder(w).Encode(resp)
-		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 	regUser.Password = ""
@@ -250,14 +252,9 @@ func (ur *UserRoute) Verify(w http.ResponseWriter, r *http.Request) {
 	user.Password = ""
 	user.Role = ""
 
-	resp := CustomResponse{
-		Message:     "payment ok",
-		Description: "payment verified succesifully",
-	}
-	err =ur.Session.WriteMessage(1, []byte("Hi Client!"))
-	if err != nil {
-        log.Println(err)
-    }
-	json.NewEncoder(w).Encode(resp)
+	json.NewEncoder(w).Encode(PaymentResponse{
+		Message: "Success",
+		User: *user,
+	})
 
 }
