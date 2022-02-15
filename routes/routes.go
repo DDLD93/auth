@@ -116,9 +116,9 @@ func (ur *UserRoute) CreateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	validatedUserModel.Password = passwordHash
-	_, err = ur.UserCtrl.CreateUser(validatedUserModel)
+	err = ur.UserCtrl.CreateUser(validatedUserModel)
 	if err != nil {
-		resp := CustomResponse{Status: "failed", Message: "error adding user to database"}
+		resp := CustomResponse{Status: "failed", Message: err.Error()}
 		json.NewEncoder(w).Encode(resp)
 		w.WriteHeader(http.StatusInternalServerError)
 		return

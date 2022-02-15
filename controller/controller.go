@@ -29,24 +29,24 @@ func NewUserCtrl(host string, port int) *DB_Connect {
 	return &DB_Connect{Session: session}
 }
 
-func (u *DB_Connect) CreateUser(user *model.User) (string, error) {
+func (u *DB_Connect) CreateUser(user *model.User) ( error) {
 	// validating user inputs
 	user, err  := utilities.UserModelValidate(user)
 	if err != nil{
-		return "",err
+		return err
 	}
 	//checking if user with same email exist
 	resp,_:= u.Session.DB(database).C(collection).Find(bson.M{"email":user.Email}).Count()
 	if resp >= 1 {
-		return "", errors.New("an Account with this email already exist")
+		return errors.New("an Account with this email already exist")
 	}
 	err2 := u.Session.DB(database).C(collection).Insert(user)
 	if err2 != nil {
-		fmt.Println("Error inserting new user ", err2)
-		return "", err2
+	
+		return errors.New("error inserting new user")
 	}
 	fmt.Println("User inserted successfully!")
-	return "User added successifully", nil
+	return nil
 }
 
 func (u *DB_Connect) GetUser(email string) (*model.User, error) {
