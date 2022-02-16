@@ -31,9 +31,12 @@ type PaymentResponse struct {
 	Description string `json:"description"`
 	User   model.User `json:"user"`
 }
-
+type UserCount struct {
+	Total int       `json:"total"`
+	TotalPaid  int  `json:"totalPaid"`
+}
 type UserResponse struct {
-	Status string       `json:"status"`
+	Status string      `json:"status"`
 	Token  string     `json:"token"`
 	User   model.User `json:"user"`
 }
@@ -119,8 +122,8 @@ func (ur *UserRoute) CreateUser(w http.ResponseWriter, r *http.Request) {
 	err = ur.UserCtrl.CreateUser(validatedUserModel)
 	if err != nil {
 		resp := CustomResponse{Status: "failed", Message: err.Error()}
-		json.NewEncoder(w).Encode(resp)
 		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(resp)
 		return
 	}
 	w.WriteHeader(http.StatusOK)
@@ -203,7 +206,7 @@ func (ur *UserRoute) GetUsers(w http.ResponseWriter, r *http.Request) {
 	}
 	// checking to token has admin previllages
 
-	if payload.AccoutType != "client"{
+	if payload.AccoutType != "admin"{
 		w.WriteHeader(http.StatusUnauthorized)
 		resp := CustomResponse{Status: "failed", Message: "Not authorize to make such request"}
 		json.NewEncoder(w).Encode(resp)
@@ -286,5 +289,65 @@ func (ur *UserRoute) Verify(w http.ResponseWriter, r *http.Request) {
 		Message: "Success",
 		User: *user,
 	})
+
+}
+func (ur *UserRoute) GetUsersCount(w http.ResponseWriter, r *http.Request) {
+	w.Header().Add("Content-Type", "application/json")
+	reqToken := r.Header.Get("Authorization")
+	// checking if request carries a valid token
+	if reqToken == "" {
+		resp := CustomResponse{
+			Status:     "failed",
+			Message: "Bearer token not included in request"}
+		json.NewEncoder(w).Encode(resp)
+		
+		return
+	}
+	splitToken := strings.Split(reqToken, "Bearer ")
+	token := splitToken[1]
+	_, err := utilities.TokenMaker.VerifyToken(token)
+	if err != nil {
+		resp := CustomResponse{Status: "failed", Message: "invalid token"}
+		w.WriteHeader(http.StatusUnauthorized)
+		json.NewEncoder(w).Encode(resp)
+		return
+	}
+	// checking to token has admin previllages
+
+	// if payload.AccoutType != "client"{
+	// 	w.WriteHeader(http.StatusUnauthorized)
+	// 	resp := CustomResponse{Status: "failed", Message: "Not authorize to make such request"}
+	// 	json.NewEncoder(w).Encode(resp)
+	// 	return
+	// }
+	User, _ := ur.UserCtrl.GetUsers()
+	paidUser, err := ur.UserCtrl.GetPaidUsers()
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		resp := CustomResponse{Status: "failed", Message: "Not authorize to make such request"}
+		json.NewEncoder(w).Encode(resp)
+	}
+	resp:= UserCount{
+		Total: len(*User),
+		TotalPaid: len(*paidUser),
+	}
+	json.NewEncoder(w).Encode(resp)
+
+}
+
+func (ur *UserRoute) FormFlag(w http.ResponseWriter, r *http.Request) {
+	w.Header().Add("Content-Type", "application/json")
+	params := mux.Vars(r)
+	email := params["useremail"]
+
+	err := ur.UserCtrl.UpdateForm(email)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		resp := CustomResponse{Status: "failed", Message: "Error toggle form flag"}
+		json.NewEncoder(w).Encode(resp)
+	}
+	resp := CustomResponse{Status: "success", Message: "Error toggle form flag"}
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(resp)
 
 }

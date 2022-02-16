@@ -68,9 +68,30 @@ if err != nil {
 return nil
 }
 
+func (u *DB_Connect) UpdateForm(email string) error{
+	err := u.Session.DB(database).C(collection).Update(bson.M{"email": email},
+	bson.D{
+		{"$set", bson.D{{"isSubmitted", true}}},
+	},)
+	if err != nil {
+		return err
+	}
+	return nil
+	}
+
 func (u *DB_Connect) GetUsers() (*[]model.User, error) {
 	users := []model.User{}
 	err := u.Session.DB(database).C(collection).Find(bson.M{}).All(&users)
+	if err != nil {
+		return &users, errors.New("error getting user by email ")
+	}
+	return &users, nil
+}
+
+
+func (u *DB_Connect) GetPaidUsers() (*[]model.User, error) {
+	users := []model.User{}
+	err := u.Session.DB(database).C(collection).Find(bson.M{"isPayment":true}).All(&users)
 	if err != nil {
 		return &users, errors.New("error getting user by email ")
 	}
