@@ -141,8 +141,12 @@ func (ur *UserRoute) Login(w http.ResponseWriter, r *http.Request) {
 	err := json.NewDecoder(r.Body).Decode(&user)
 
 	if err != nil {
-		resp := CustomResponse{Status: err.Error(), Message: "Error Decoding request body"}
-		w.WriteHeader(http.StatusInternalServerError)
+		resp := CustomResponse{Status:"failed", Message: "Error Decoding request body"}
+		json.NewEncoder(w).Encode(resp)
+		return
+	}
+	if len(user.Email) <= 0 || len(user.Password) <= 0{
+		resp := CustomResponse{Status:"failed", Message: "Email or Password field cannot be empty"}
 		json.NewEncoder(w).Encode(resp)
 		return
 	}
@@ -150,8 +154,6 @@ func (ur *UserRoute) Login(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 		 resp := CustomResponse{Status:"failed", Message: "A user with that email dont exist"}
-		w.WriteHeader(http.StatusInternalServerError)
-		fmt.Println("A user with that email dont exist")
 		json.NewEncoder(w).Encode(resp)
 		return
 	}
@@ -159,7 +161,6 @@ func (ur *UserRoute) Login(w http.ResponseWriter, r *http.Request) {
 	isValid := utilities.CheckPasswordHash(user.Password, regUser.Password)
 	if !isValid {
 		resp := CustomResponse{Status: "failed", Message: "wrong password input"}
-		w.WriteHeader(http.StatusUnauthorized)
 		json.NewEncoder(w).Encode(resp)
 		return
 	}
@@ -168,15 +169,10 @@ func (ur *UserRoute) Login(w http.ResponseWriter, r *http.Request) {
 	token, err := utilities.TokenMaker.CreateToken(regUser.Email, regUser.Role, time.Hour)
 	if err != nil {
 		resp := CustomResponse{Status: "failed", Message: "An error occured generating token"}
-		w.WriteHeader(http.StatusInternalServerError)
 		json.NewEncoder(w).Encode(resp)
 		return
 	}
-	regUser.Password = ""
-	regUser.Role = ""
 	response := UserResponse{Status: "Login Success", Token: token, User: *regUser}
-	
-	w.Header().Add("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(response)
 
 	
@@ -351,3 +347,4 @@ func (ur *UserRoute) FormFlag(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(resp)
 
 }
+
