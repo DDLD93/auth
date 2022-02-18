@@ -3,6 +3,7 @@ package controller
 import (
 	"errors"
 	"fmt"
+
 	"log"
 
 	"github.com/ddld93/auth/model"
@@ -45,7 +46,6 @@ func (u *DB_Connect) CreateUser(user *model.User) ( error) {
 	
 		return errors.New("error inserting new user")
 	}
-	fmt.Println("User inserted successfully!")
 	return nil
 }
 

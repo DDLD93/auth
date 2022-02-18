@@ -1,7 +1,9 @@
 package utilities
 
 import (
+	"encoding/json"
 	"errors"
+	"fmt"
 	"log"
 	"net/http"
 
@@ -29,7 +31,7 @@ func UserModelValidate(user *model.User)  (*model.User, error){
 	user.Role = "client"
 	return user, nil
 }
-func VerifyPayment(ref string) error{
+func VerifyPayment(ref string) ( *http.Response,error){
 	apiKey:= "sk_test_91dcbd0fc948c4670f12b9384402e87a56927c27"
 
 	
@@ -50,13 +52,19 @@ func VerifyPayment(ref string) error{
     resp, err := client.Do(req)
     if err != nil {
         log.Println("Error on response.\n[ERROR] -", err)
-		return err
+		return resp, err
     }
     defer resp.Body.Close()
 	if resp.StatusCode != 200{
 		
-		return errors.New("payment not verified")
+		return resp,errors.New("payment not verified")
 	}
-
-	return nil
+		var j interface{}
+    err = json.NewDecoder(resp.Body).Decode(&j)
+	if err != nil {
+        log.Println("Error on response.\n[ERROR] -", err)
+		return resp, err
+    }
+	fmt.Println(j)
+	return resp,nil
 }

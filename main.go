@@ -21,14 +21,14 @@ func main() {
 
 	
 	// router handlers
-	r.HandleFunc("/ws", route.WsEndpoint).Methods("GET")
-	r.HandleFunc("/api/v1/auth/login", route.Login).Methods("POST")
-	r.HandleFunc("/api/v1/auth/signup", route.CreateUser).Methods("POST")
-	r.HandleFunc("/api/v1/auth/users", route.GetUsers).Methods("GET")
-	r.HandleFunc("/api/v1/auth/users/analytics", route.GetUsersCount).Methods("GET")
-	r.HandleFunc("/api/paystack/verify/{reference}", route.Verify).Methods("GET")
-	r.HandleFunc("/api/auth/formflag/{useremail}", route.FormFlag).Methods("GET")
-	r.PathPrefix("/").Handler(http.FileServer(http.Dir("www")))
+	r.HandleFunc("/new/admin", route.CreateAdmin).Methods("POST")
+	r.HandleFunc("/login", route.Login).Methods("POST")
+	r.HandleFunc("/signup", route.CreateUser).Methods("POST")
+	r.HandleFunc("/users", route.GetUsers).Methods("GET")
+	r.HandleFunc("/user/{email}", route.GetUser).Methods("GET")
+	r.HandleFunc("/users/analytics", route.GetUsersAnalytics).Methods("GET")
+	//r.HandleFunc("/api/paystack/verify/{reference}", route.Verify).Methods("GET")
+	r.HandleFunc("/formflag/{useremail}", route.FormFlag).Methods("GET")
 	c := cors.New(cors.Options{
 		AllowedOrigins: []string{"*"},
 		AllowedMethods: []string{"GET", "POST", "DELETE"},
