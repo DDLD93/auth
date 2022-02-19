@@ -63,7 +63,7 @@ bson.D{
 	{"$set", bson.D{{"isPayment", true}}},
 },)
 if err != nil {
-	return err
+	return errors.New("Error updating payment status")
 }
 return nil
 }

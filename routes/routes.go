@@ -2,23 +2,25 @@ package routes
 
 import (
 	"encoding/json"
+	"fmt"
+
 	"net/http"
 
 	"github.com/ddld93/auth/controller"
 	"github.com/ddld93/auth/model"
 	"github.com/ddld93/auth/utilities"
 	"github.com/gorilla/mux"
-	"github.com/gorilla/websocket"
 )
 
 type UserRoute struct {
 	UserCtrl *controller.DB_Connect
-	Session *websocket.Conn
 }
 
 type CustomResponse struct {
 	Status     string `json:"status"`
 	Message string `json:"message"`
+	Payload interface{} `json:"payload"`
+	Error error 	`json:"error"`
 }
 type PaymentResponse struct {
 	Message     string `json:"message"`
@@ -86,36 +88,48 @@ func (ur *UserRoute) CreateUser(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	user := model.User{}
 	err := json.NewDecoder(r.Body).Decode(&user)
+
 	if err != nil {
-		resp := CustomResponse{Status: err.Error(), Message: "Error Decoding request body"}
+		resp := CustomResponse{Status:"failed", Message: "Error Decoding request body"}
 		json.NewEncoder(w).Encode(resp)
-		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
+
 	validatedUserModel, err := utilities.UserModelValidate(&user)
 	if err != nil {
-		resp := CustomResponse{Status:"failed" , Message:err.Error()}
+		resp := CustomResponse{
+			Status: "failed", 
+			Message: "All fields are Required ",
+			Error: err,
+		}
 		json.NewEncoder(w).Encode(resp)
 		return
 	}
 	// hashing password using Bcrypt
 	passwordHash, err := utilities.HashPassword(validatedUserModel.Password)
 	if err != nil {
-		resp := CustomResponse{Status: "failed", Message: "internal server error"}
+		resp := CustomResponse{
+			Status: "failed", 
+			Message: "Error hashing password",
+			Error: err,
+		}
 		json.NewEncoder(w).Encode(resp)
 
 		return
 	}
 	validatedUserModel.Password = passwordHash
-	err = ur.UserCtrl.CreateUser(validatedUserModel)
-	if err != nil {
-		resp := CustomResponse{Status: "failed", Message: err.Error()}
+	err1 := ur.UserCtrl.CreateUser(validatedUserModel)
+	fmt.Println(err1)
+	if err1 != nil {
+		resp := CustomResponse{
+			Status: "failed", 
+			Message: err1.Error(),
+			Error: err1,
+		}
 	
 		json.NewEncoder(w).Encode(resp)
 		return
 	}
-	w.WriteHeader(http.StatusOK)
-	
 	
 	json.NewEncoder(w).Encode(map[string]string{
 		"status": "Success",
@@ -190,57 +204,60 @@ func (ur *UserRoute) GetUser(w http.ResponseWriter, r *http.Request) {
 
 }
 
-// func (ur *UserRoute) Verify(w http.ResponseWriter, r *http.Request) {
-// 	w.Header().Add("Content-Type", "application/json")
-// 	refNo := mux.Vars(r)
-// 	reference := refNo["reference"]
-// 	response,err := utilities.VerifyPayment(reference.hgbmn)
-// 	if err != nil {
-// 		w.WriteHeader(http.StatusNotAcceptable)
-// 		resp := CustomResponse{
-// 			Status:     "failed",
-// 			Message: "Payment not verfied",
-// 		}
-// 		json.NewEncoder(w).Encode(resp)
-// 	return
-// 	}
+func (ur *UserRoute) Verify(w http.ResponseWriter, r *http.Request) {
+	w.Header().Add("Content-Type", "application/json")
+	params := mux.Vars(r)
+	reference := params["reference"]
+	userEmail := params["email"]
+	err := utilities.VerifyPayment(reference)
+	if err != nil {
+		resp := CustomResponse{
+			Status:     "failed",
+			Message: "Payment not verfied",
+			Error: err,
+		}
+		json.NewEncoder(w).Encode(resp)
+	return
+	}
 
-// 	err = ur.UserCtrl.UpdatePayment(response.Status)
-// 	if err != nil {
-// 		w.WriteHeader(http.StatusInternalServerError)
-// 		resp := CustomResponse{
-// 			Status:     "failed",
-// 			Message: "Something went wrong",
-// 		}
-// 		json.NewEncoder(w).Encode(resp)
-// 		return
-// 	}
-// 	user,err := ur.UserCtrl.GetUser(response.Status)
-// 	if err != nil {
-// 		w.WriteHeader(http.StatusInternalServerError)
-// 		resp := CustomResponse{
-// 			Status:     "failed",
-// 			Message: "Something went wrong",
-// 		}
-// 		json.NewEncoder(w).Encode(resp)
-// 		return
-// 	}
-// 	user.Password = ""
-// 	user.Role = ""
+	err = ur.UserCtrl.UpdatePayment(userEmail)
+	if err != nil {
+		resp := CustomResponse{
+			Status:     "failed",
+			Message: "didnt updated user status",
+			Error: err,
+		}
+		json.NewEncoder(w).Encode(resp)
+		return
+	}
+	user,err := ur.UserCtrl.GetUser(userEmail)
+	if err != nil {
+		resp := CustomResponse{
+			Status:     "failed",
+			Message: "Something went wrong",
+			Error: err,
+		}
+		json.NewEncoder(w).Encode(resp)
+		return
+	}
+	user.Password = ""
+	user.Role = ""
 
-// 	json.NewEncoder(w).Encode(PaymentResponse{
-// 		Message: "Success",
-// 		User: *user,
-// 	})
+	json.NewEncoder(w).Encode(PaymentResponse{
+		Message: "Success",
+		User: *user,
+	})
 
-// }
+}
 func (ur *UserRoute) GetUsersAnalytics(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add("Content-Type", "application/json")
 	User, _ := ur.UserCtrl.GetUsers()
 	paidUser, err := ur.UserCtrl.GetPaidUsers()
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		resp := CustomResponse{Status: "failed", Message: "Not authorize to make such request"}
+		resp := CustomResponse{Status: "failed", 
+		Message: "Not authorize to make such request",
+		Error: err,
+	}
 		json.NewEncoder(w).Encode(resp)
 	}
 	resp:= UserCount{
@@ -262,7 +279,11 @@ func (ur *UserRoute) FormFlag(w http.ResponseWriter, r *http.Request) {
 	err := ur.UserCtrl.UpdateForm(email)
 	if err != nil {
 		
-		resp := CustomResponse{Status: "failed", Message: "Error toggling form flag"}
+		resp := CustomResponse{
+		Status: "failed", 
+		Message: "Error toggling form flag",
+		Error: err,
+	}
 		json.NewEncoder(w).Encode(resp)
 	}
 	resp := CustomResponse{Status: "success", Message: "No errors"}

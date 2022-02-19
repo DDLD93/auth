@@ -26,8 +26,8 @@ func main() {
 	r.HandleFunc("/signup", route.CreateUser).Methods("POST")
 	r.HandleFunc("/users", route.GetUsers).Methods("GET")
 	r.HandleFunc("/user/{email}", route.GetUser).Methods("GET")
-	r.HandleFunc("/users/analytics", route.GetUsersAnalytics).Methods("GET")
-	//r.HandleFunc("/api/paystack/verify/{reference}", route.Verify).Methods("GET")
+	r.HandleFunc("/analytics", route.GetUsersAnalytics).Methods("GET")
+	r.HandleFunc("/paystack/{reference}/{email}", route.Verify).Methods("GET")
 	r.HandleFunc("/formflag/{useremail}", route.FormFlag).Methods("GET")
 	c := cors.New(cors.Options{
 		AllowedOrigins: []string{"*"},
