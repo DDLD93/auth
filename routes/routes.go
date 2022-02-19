@@ -2,7 +2,6 @@ package routes
 
 import (
 	"encoding/json"
-	"fmt"
 
 	"net/http"
 
@@ -119,7 +118,6 @@ func (ur *UserRoute) CreateUser(w http.ResponseWriter, r *http.Request) {
 	}
 	validatedUserModel.Password = passwordHash
 	err1 := ur.UserCtrl.CreateUser(validatedUserModel)
-	fmt.Println(err1)
 	if err1 != nil {
 		resp := CustomResponse{
 			Status: "failed", 
