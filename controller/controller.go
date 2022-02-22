@@ -57,10 +57,10 @@ func (u *DB_Connect) GetUser(email string) (*model.User, error) {
 	}
 	return &user, nil
 }
-func (u *DB_Connect) UpdatePayment(email string) error{
+func (u *DB_Connect) UpdatePayment(email string, paymentInfo model.PaymentInfo) error{
 err := u.Session.DB(database).C(collection).Update(bson.M{"email": email},
 bson.D{
-	{"$set", bson.D{{"isPayment", true}}},
+	{"$set", bson.D{{"isPayment", true},{"paymentInfo", paymentInfo}}},
 },)
 if err != nil {
 	return errors.New("Error updating payment status")

@@ -28,7 +28,7 @@ func main() {
 	r.HandleFunc("/user/{email}", route.GetUser).Methods("GET")
 	r.HandleFunc("/analytics", route.GetUsersAnalytics).Methods("GET")
 	r.HandleFunc("/paystack/{reference}/{email}", route.Verify).Methods("GET")
-	r.HandleFunc("/formflag/{useremail}", route.FormFlag).Methods("GET")
+	r.HandleFunc("/formflag/{email}", route.FormFlag).Methods("GET")
 	c := cors.New(cors.Options{
 		AllowedOrigins: []string{"*"},
 		AllowedMethods: []string{"GET", "POST", "DELETE"},

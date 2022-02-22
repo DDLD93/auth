@@ -2,6 +2,7 @@ package routes
 
 import (
 	"encoding/json"
+	"fmt"
 
 	"net/http"
 
@@ -23,7 +24,7 @@ type CustomResponse struct {
 }
 type PaymentResponse struct {
 	Message     string `json:"message"`
-	Description string `json:"description"`
+	Status string `json:"status"`
 	User   model.User `json:"user"`
 }
 type UserCount struct {
@@ -138,10 +139,15 @@ func (ur *UserRoute) CreateUser(w http.ResponseWriter, r *http.Request) {
 func (ur *UserRoute) Login(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	user := model.User{}
+	fmt.Println("login")
 	err := json.NewDecoder(r.Body).Decode(&user)
 
 	if err != nil {
-		resp := CustomResponse{Status:"failed", Message: "Error Decoding request body"}
+		resp := CustomResponse{
+			Status:"failed", 
+			Message: "Error Decoding request body",
+			Error: err,
+		}
 		json.NewEncoder(w).Encode(resp)
 		return
 	}
@@ -153,7 +159,11 @@ func (ur *UserRoute) Login(w http.ResponseWriter, r *http.Request) {
 	regUser, err := ur.UserCtrl.GetUser(user.Email)
 
 	if err != nil {
-		 resp := CustomResponse{Status:"failed", Message: "A user with that email dont exist"}
+		 resp := CustomResponse{
+			 Status:"failed", 
+			 Message: "A user with that email dont exist",
+			 Error: err,
+			}
 		json.NewEncoder(w).Encode(resp)
 		return
 	}
@@ -177,7 +187,11 @@ func (ur *UserRoute) GetUsers(w http.ResponseWriter, r *http.Request) {
 	regUser, err := ur.UserCtrl.GetUsers()
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		resp := CustomResponse{Status: "failed", Message: "Not authorize to make such request"}
+		resp := CustomResponse{
+			Status: "failed", 
+			Message: "Not authorize to make such request",
+			Error: err,
+				}
 		json.NewEncoder(w).Encode(resp)
 	}
 	json.NewEncoder(w).Encode(regUser)
@@ -217,8 +231,11 @@ func (ur *UserRoute) Verify(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(resp)
 	return
 	}
-
-	err = ur.UserCtrl.UpdatePayment(userEmail)
+	payment := model.PaymentInfo{
+		Reference: reference,
+		Channel: "paystack",
+	}
+	err = ur.UserCtrl.UpdatePayment(userEmail,payment)
 	if err != nil {
 		resp := CustomResponse{
 			Status:     "failed",
@@ -242,7 +259,8 @@ func (ur *UserRoute) Verify(w http.ResponseWriter, r *http.Request) {
 	user.Role = ""
 
 	json.NewEncoder(w).Encode(PaymentResponse{
-		Message: "Success",
+		Message: "Payment successfull",
+		Status: "Success",
 		User: *user,
 	})
 
@@ -272,7 +290,7 @@ func (ur *UserRoute) GetUsersAnalytics(w http.ResponseWriter, r *http.Request) {
 func (ur *UserRoute) FormFlag(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add("Content-Type", "application/json")
 	params := mux.Vars(r)
-	email := params["useremail"]
+	email := params["email"]
 
 	err := ur.UserCtrl.UpdateForm(email)
 	if err != nil {
@@ -284,8 +302,7 @@ func (ur *UserRoute) FormFlag(w http.ResponseWriter, r *http.Request) {
 	}
 		json.NewEncoder(w).Encode(resp)
 	}
-	resp := CustomResponse{Status: "success", Message: "No errors"}
-	w.WriteHeader(http.StatusOK)
+	resp := CustomResponse{Status: "success", Message: "user submission status updated"}
 	json.NewEncoder(w).Encode(resp)
 
 }

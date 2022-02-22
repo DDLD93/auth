@@ -18,7 +18,7 @@ type User struct{
 	CreatedAt time.Time		`json:"createAt" bson:"CreatAt"`
 }
 type PaymentInfo struct{
-	Channel string `json:"channel" bson:"channel"`
-	Refrence string `json:"refrence" bson:"refrence"`
+	Channel string 			`json:"channel" bson:"channel"`
+	Reference string 		`json:"Reference" bson:"Reference"`
 	PaymentAt time.Time		`json:"paymentAt" bson:"paymentAt"`
 }
