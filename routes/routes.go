@@ -174,7 +174,7 @@ func (ur *UserRoute) Login(w http.ResponseWriter, r *http.Request) {
 	}
 	regUser.Password = ""
 	regUser.Role = ""
-	response := UserResponse{Status: "Login Success", Token: token, User: *regUser}
+	response := UserResponse{Status: "Success", Token: token, User: *regUser}
 	
 	w.Header().Add("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(response)
