@@ -2,5 +2,5 @@
 FROM ubuntu:jammy
 WORKDIR /app
 COPY auth .
-EXPOSE 5000
+EXPOSE 9000
 CMD ["./auth"]
