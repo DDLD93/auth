@@ -1,5 +1,5 @@
 # build stage
-FROM unbuntu:jammy
+FROM ubuntu:jammy
 WORKDIR /app
 COPY auth .
 EXPOSE 9000
