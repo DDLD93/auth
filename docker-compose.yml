@@ -4,11 +4,11 @@ services:
     image: mongo:4.4.12      
     ports:         
       - 27017:27017        
-  auth:      
+  goApp:      
     image: auth:v1
     restart: always  
     ports: 
-      - 80:9000        
+      - 9000:9000        
     depends_on:           
       - database
 
