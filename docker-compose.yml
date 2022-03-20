@@ -21,6 +21,8 @@ services:
       - database
     ports: 
       - "5500:5500"
-  
+volumes:
+    feimsVolume:
+    databaseVolume:  
 
  
