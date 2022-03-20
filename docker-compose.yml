@@ -5,7 +5,7 @@ services:
     ports:         
       - 27017:27017
     volumes:
-    - :data/db          
+    - databaseVolume:data/db          
   goApp:      
     image: auth:v1
     restart: always  
@@ -16,7 +16,7 @@ services:
   feims:
     image: ujere/lexington:feims
     volumes: 
-      - :/app
+      - feimsVolume:/app
     depends_on: 
       - database
     ports: 
