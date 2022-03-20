@@ -12,17 +12,8 @@ services:
     ports: 
       - 80:9000        
     depends_on:           
-      - database
-  feims:
-    image: ujere/lexington:feims
-    volumes: 
-      - feimsVolume:/app/
-    depends_on: 
-      - database
-    ports: 
-      - "5500:5500"
+      - database 
 volumes:
-    feimsVolume:
     databaseVolume:  
 
  
