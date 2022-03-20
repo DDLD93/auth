@@ -5,7 +5,7 @@ services:
     ports:         
       - 27017:27017
     volumes:
-    - databaseVolume:data/db/          
+    - databaseVolume:/data/db/          
   goApp:      
     image: auth:v1
     restart: always  
